@@ -86,9 +86,9 @@ class Sensors:
 
     def calc_accel_angle(self):
         reading = self.read_accelerometer()
-        if reading.x == 0:
-            return math.pi  # Or maybe -pi, depending on z val?
-        return math.atan(reading.y / -reading.x)
+        if reading.z == 0:
+            return -math.pi  # Or maybe -pi, depending on z val?
+        return -math.atan(1.0 * reading.y / reading.z)
 
     def read_gyroscope(self):
         """ Supposed to return: change of angle in radians/s"""
@@ -103,7 +103,9 @@ class Sensors:
     def get_angle(self):
         """ Returns current angle using complimentary filter"""
         gyro_z = self.read_gyroscope().z
+        #print(gyro_z)
         angle_xy = self.calc_accel_angle()
+        #print(math.degrees(angle_xy))
         dt = time.time() - self.timestamp
         y_n = (1 - self.a) * angle_xy + self.a * self.angle
         self.angle = (1 - self.a) * (self.angle + gyro_z * dt) + (self.a) * angle_xy
@@ -126,11 +128,12 @@ def test_filter():
     sensors = Sensors(channel, address)
     current_angle = sensors.get_angle()
     print(math.degrees(current_angle))
-    for x in range(100):
+    for x in range(1000):
         current_angle = sensors.get_angle()
         if not x % 10:
+            pass
             print(math.degrees(current_angle))
-        time.sleep(0.1)
+        time.sleep(0.01)
     
 
 def test_gyro():

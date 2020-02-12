@@ -1,0 +1,12 @@
+general:
+  gearRatio: 3.6
+  minCellVoltage: 3
+odrives:
+  brake_resistance: 0
+  calibration_current: 10
+  current_lim: 10
+  newConfig: false
+  pos_gain: 20.0
+  vel_gain: 0.0005
+  vel_integrator_gain: 0.001
+  vel_limit: 10000

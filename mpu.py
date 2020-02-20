@@ -22,8 +22,6 @@ class Vector:
 
     def __str__(self):
         return "{}, {}, {}".format(self.x, self.y, self.z)
-        #return "x: {:06}\ty: {:06}\tz:{:06}".format(self.x, self.y, self.z)
-
 
 
 # For register numbers, see MPU-9250 register map
@@ -101,16 +99,16 @@ class Sensors:
     # Add method called "update sensors", which reads both gyro and accelerometer,
     # and returns a new angle
     def get_angle(self):
-        """ Returns current angle using complimentary filter"""
+        """ Returns current angle and dt"""
         gyro_z = self.read_gyroscope().z
-        #print(gyro_z)
+        # print(gyro_z)
         angle_xy = self.calc_accel_angle()
-        #print(math.degrees(angle_xy))
+        # print(math.degrees(angle_xy))
         dt = time.time() - self.timestamp
         y_n = (1 - self.a) * angle_xy + self.a * self.angle
         self.angle = (1 - self.a) * (self.angle + gyro_z * dt) + (self.a) * angle_xy
         self.timestamp = time.time()
-        return self.angle
+        return self.angle, dt
 
 
 def main():
@@ -126,15 +124,14 @@ def test_filter():
     channel = 1
     address = 0x68
     sensors = Sensors(channel, address)
-    current_angle = sensors.get_angle()
+    current_angle, dt = sensors.get_angle()
     print(math.degrees(current_angle))
     for x in range(1000):
-        current_angle = sensors.get_angle()
+        current_angle, dt = sensors.get_angle()
         if not x % 10:
-            pass
             print(math.degrees(current_angle))
         time.sleep(0.01)
-    
+
 
 def test_gyro():
     channel = 1
@@ -143,7 +140,6 @@ def test_gyro():
     print(sensors.read_gyroscope())
 
 
-
 if __name__ == '__main__':
     test_filter()
-    #test_gyro()
+    # test_gyro()

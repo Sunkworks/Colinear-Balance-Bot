@@ -5,92 +5,122 @@ from odrive.enums import *
 import time
 import yaml
 
-
-def calibrate(axis):
-    print("Starting calibration...")
-    for x in axis:
-        x.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE
-    while axis[len(axis)-1].current_state != AXIS_STATE_IDLE:
-        time.sleep(0.1)
-    print("Calibration finished.")
+YML_FILE_NAME = "config.yml"
 
 
-def closedLoopControl(axis):
-    for x in axis:
-        x.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
+def configure_drive(drive, config):
+    drive.config.brake_resistance = config["odrives"]["brake_resistance"]
 
 
-def idle(axis):
-    for x in axis:
-        x.requested_state = AXIS_STATE_IDLE
+def configure_axis(axis, config):
+    axis.motor.config.current_lim = config["odrives"]['current_lim']
+    axis.motor.config.calibration_current = config["odrives"]['calibration_current']
+    axis.controller.config.pos_gain = config["odrives"]['pos_gain']
+    axis.controller.config.vel_gain = config["odrives"]['vel_gain']
+    axis.controller.config.vel_integrator_gain = config["odrives"]['vel_integrator_gain']
+    axis.controller.config.vel_limit = config["odrives"]['vel_limit']
 
 
-def configure(cfg):
-    print("Configuring ODrives...")
-    odrv0 = odrive.find_any(serial_number=cfg['serialnumber0'])
-    odrv1 = odrive.find_any(serial_number=cfg['serialnumber1'])
-    allDrives = [odrv0, odrv1]
-    allAxis = [odrv0.axis0, odrv0.axis1, odrv1.axis0, odrv1.axis1]
-
-    for x in allDrives:
-        x.config.brake_resistance = cfg['brake_resistance']
-    for x in allAxis:
-        x.motor.config.current_lim = cfg['current_lim']
-        x.motor.config.calibration_current = cfg['calibration_current']
-        x.controller.config.pos_gain = cfg['pos_gain']
-        x.controller.config.vel_gain = cfg['vel_gain']
-        x.controller.config.vel_integrator_gain = cfg['vel_integrator_gain']
-        x.controller.config.vel_limit = cfg['vel_limit']
-    for x in allDrives:
-        x.save_configuration()
-        try:
-            x.reboot()
-        except:
-            pass
-    print("ODrives configured, rebooting.")
+def save_drive_config(drive):
+    drive.save_configuration()
+    try:
+        drive.reboot()
+    except:
+        pass
 
 
-def dumpErrors(axis):
-    print("Dumping errors:")
-    i = 0
-    for x in axis:
-        print("axis" + str(i))
-        print("    axis error: " + str(x.error if x.error else "no error"))
-        print("    motor error: " + str(x.motor.error if x.motor.error else "no error"))
-        print("    controller error: " + str(x.controller.error if x.controller.error else "no error"))
-        print("    encoder error: " + str(x.encoder.error if x.controller.error else "no error"))
-        i += 1
+class OdriveController:
+    def __init__(self, config_name=YML_FILE_NAME):
+        self.drives = []  # A list of all odrives being controlled
+        self.axises = []
+        with open(config_name, "r") as yml_file:
+            config = yaml.load(yml_file, Loader=yaml.FullLoader)
+        # self.serial_numbers = [config["odrives"]["serialnumber0"] , config["odrives"]["serialnumber1"]]
+        self.serial_numbers = [config["odrives"]["serialnumber0"]]
+        # Makes sure that motors mounted the wrong way still work
+        self.axises_forward_direction = [-1 if x else 1 for x in config["odrives"]["axis_inverted_forward_direction"]]
+        self.find_odrives()
+        if config["newConfig"]:
+            self.configure(config)
+            config["odrives"]["newConfig"] = False
+            with open(YML_FILE_NAME, "w") as yml_file:
+                yaml.dump(config, yml_file)
+            self.find_odrives()
 
+    def find_odrives(self):
+        """Finds odrives connected to computer"""
+        # Clear lists
+        del self.drives[:]
+        del self.axises[:]
+        for s in self.serial_numbers:
+            odrv = odrive.find_any(serial_number=s)
+            self.drives.append(odrv)
+            self.axises.extend((odrv.axis0, odrv.axis1))
+        print("ODrives found")
 
-def resetErrors(axis):
-    print("Resetting errors.")
-    for x in axis:
-        x.error = 0
-        x.motor.error = 0
-        x.controller.error = 0
-        x.encoder.error = 0
+    def configure(self, config):
+        """Updates configuration of all motors and axises
+        config -- dict of same format as the config.yml file
+        """
+        print("Configuring ODrives...")
+        for axis in self.axises:
+            configure_axis(axis, config)
+        for drive in self.drives:
+            configure_drive(drive, config)
+            save_drive_config(drive)
+        print("ODrives configured, rebooting.")
 
+    def set_axis_state(self, new_state):
+        """Sets requested_state of all axises to new_state.
+        new_state -- an AXIS_STATE enum from odrive.enums
+        """
+        for axis in self.axises:
+            axis.requested_state = new_state
 
-def main():
-    with open("config.yml", "r") as ymlfile:
-        config = yaml.load(ymlfile, Loader=yaml.FullLoader)
-    cfg = config['odrives']
+    def set_control_mode(self, new_ctrl_mode):
+        for axis in self.axises:
+            axis.controller.config.control_mode = new_ctrl_mode
 
-    if cfg['newConfig']:
-        configure(cfg)
-        config['odrives']['newConfig'] = False
-        with open("config.yml", "w") as ymlfile:
-            yaml.dump(config, ymlfile)
+    def calibrate(self):
+        """Calibrate all odrive axises. Leaves them in idle state."""
 
-    print("Looking for ODrives...")
-    odrv0 = odrive.find_any(serial_number=cfg['serialnumber0'])
-    odrv1 = odrive.find_any(serial_number=cfg['serialnumber1'])
-    print("ODrives found!")
+        def calibration_finished():
+            for axis in self.axises:
+                if axis.current_state != AXIS_STATE_IDLE:
+                    return False
+            return True
 
-    allDrives = [odrv0, odrv1]
-    allAxis = {odrv0.axis0, odrv0.axis1, odrv1.axis0, odrv1.axis1}
+        print("Starting calibration...")
+        self.set_axis_state(AXIS_STATE_FULL_CALIBRATION_SEQUENCE)
+        while not calibration_finished():
+            time.sleep(0.1)
+        print("Calibration finished.")
 
-    dumpErrors(allAxis)
+    def dump_errors(self):
+        """Prints errors on all axises."""
+        print("Dumping errors:")
+        for i, axis in enumerate(self.axises):
+            print(f"axis: {i}")
+            print(f"\taxis error: {axis.error}")
+            print(f"\tmotor error: {axis.motor.error}")
+            print(f"\tcontroller error: {axis.controller.error}")
+            print(f"\tencoder error: {axis.encoder.error}")
 
+    def reset_errors(self):
+        """Resets errors on all axises."""
+        print("Resetting errors...")
+        for axis in self.axises:
+            axis.error = 0
+            axis.motor.error = 0
+            axis.controller.error = 0
+            axis.encoder.error = 0
 
-main()
+    def set_motor_speed(self, axis_index: int, velocity: float):
+        axis = self.axises[axis_index]
+        axis_forward = self.axises_forward_direction[axis_index]
+        # assert axis.current_state == CTRL_MODE_VELOCITY_CONTROL, "Motor isn't in velocity ctrl mode"
+        axis.controller.vel_setpoint = velocity * axis_forward
+
+    def set_all_motors_speed(self, velocity: float):
+        for axis, forward in zip(self.axises, self.axises_forward_direction):
+            axis.controller.vel_setpoint = velocity * forward

@@ -2,18 +2,18 @@ general:
   gearRatio: 3.6
   minCellVoltage: 3
 odrives:
+  axis_inverted_forward_direction:
+  - false
+  - true
+  - false
+  - false
   brake_resistance: 0.47
   calibration_current: 10
   current_lim: 15
-  newConfig: true
+  newConfig: false
   pos_gain: 20.0
   serialnumber0: 206739834D4D
   serialnumber1: 204F39824D4D
   vel_gain: 0.0005
   vel_integrator_gain: 0.001
-  vel_limit: 20000
-  axis_inverted_forward_direction:
-    - false
-    - false
-    - false
-    - false
+  vel_limit: 50000

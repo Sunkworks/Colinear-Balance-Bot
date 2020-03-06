@@ -40,7 +40,7 @@ class OdriveController:
         # Makes sure that motors mounted the wrong way still work
         self.axises_forward_direction = [-1 if x else 1 for x in config["odrives"]["axis_inverted_forward_direction"]]
         self.find_odrives()
-        if config["newConfig"]:
+        if config["odrives"]["newConfig"]:
             self.configure(config)
             config["odrives"]["newConfig"] = False
             with open(YML_FILE_NAME, "w") as yml_file:
@@ -69,6 +69,14 @@ class OdriveController:
             configure_drive(drive, config)
             save_drive_config(drive)
         print("ODrives configured, rebooting.")
+        self.reboot()
+
+    def reboot(self):
+        for drive in self.drives:
+            try:
+                drive.reboot()
+            except:
+                pass
 
     def set_axis_state(self, new_state):
         """Sets requested_state of all axises to new_state.

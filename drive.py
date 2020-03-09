@@ -44,7 +44,7 @@ class OdriveController:
             self.configure(config)
             config["odrives"]["newConfig"] = False
             with open(YML_FILE_NAME, "w") as yml_file:
-                yaml.dump(config, yml_file)
+                yaml.dump(config, yml_file, default_flow_style=False, sort_keys=False)
             self.find_odrives()
 
     def find_odrives(self):

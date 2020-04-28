@@ -4,7 +4,7 @@ import time
 import math
 from enum import Enum
 
-from smbus import SMBus
+from smbus2 import SMBus
 
 
 # A class for representing a 3D vector of some kind:
@@ -19,6 +19,11 @@ class Vector:
         self.x = 1.0 * self.x / scale_factor
         self.y = 1.0 * self.y / scale_factor
         self.z = 1.0 * self.z / scale_factor
+
+    def to_radians(self):
+        self.x = math.radians(self.x)
+        self.y = math.radians(self.y)
+        self.z = math.radians(self.z)
 
     def __str__(self):
         return "{}, {}, {}".format(self.x, self.y, self.z)
@@ -47,23 +52,30 @@ def twos_complement(val, bits):
 
 class Sensors:
     def __init__(self, channel, addr):
+        print("HWLLO")
         self.channel = channel
         self.address = addr
-        self.reset_angle()
-        self.timestamp = time.time()  # Time of last measurement
+        self.bus = SMBus(self.channel)
         self.a = 0.98  # Complimentary filter coefficient
         self.gyro_LSB = 131  # From datasheet
+        self.timestamp = time.time()  # Time of last measurement
+        self.reset_angle()
 
     def reset_angle(self):
         # Call when robot is stationary, calcs current angle entirely from accelerometer
         self.angle = self.calc_accel_angle()
 
-    def twobyte_merge(self, bus, register):
+    def twobyte_merge(self, register):
         """ Returns: numerical value from high and low byte
             register: the register for the high byte
             assumption: the low byte is stored in the subsequent register
             """
-        raw_data = bus.read_i2c_block_data(self.address, register.value, 2)
+        #raw_data = self.bus.read_i2c_block_data(self.address, register.value, 2)
+        time.sleep(0.0001)
+        raw_data = [0, 0]
+        raw_data[0] = self.bus.read_byte_data(self.address, register.value)
+        time.sleep(0.0001)
+        raw_data[1] = self.bus.read_byte_data(self.address, register.value)
         unsigned_val = (raw_data[0] << 8) + raw_data[1]
         return twos_complement(unsigned_val, 16)
 
@@ -71,11 +83,15 @@ class Sensors:
         """ Returns: Vector with vals from sensor
             REGISTER: Enum with x, y and z addresses."""
         output = Vector()
-        bus = SMBus(self.channel)  # TODO: have bus permanently open instead
-        output.x = self.twobyte_merge(bus, REGISTER.X)
-        output.y = self.twobyte_merge(bus, REGISTER.Y)
-        output.z = self.twobyte_merge(bus, REGISTER.Z)
-        bus.close()
+        #bus = SMBus(self.channel)  # TODO: have bus permanently open instead
+        time.sleep(0.0001)
+        output.x = self.twobyte_merge(REGISTER.X)
+        time.sleep(0.0001)
+        output.y = self.twobyte_merge(REGISTER.Y)
+        time.sleep(0.0001)
+        output.z = self.twobyte_merge(REGISTER.Z)
+        time.sleep(0.0001)
+        #bus.close()
         return output
 
     def read_accelerometer(self):
@@ -84,14 +100,18 @@ class Sensors:
 
     def calc_accel_angle(self):
         reading = self.read_accelerometer()
-        if reading.z == 0:
-            return -math.pi  # Or maybe -pi, depending on z val?
-        return -math.atan(1.0 * reading.y / reading.z)
+        if reading.x == 0:
+            raise ValueError
+        return -math.atan(1.0 * reading.y / reading.x)
 
     def read_gyroscope(self):
         """ Supposed to return: change of angle in radians/s"""
         measurement = self.read_sensor(GYRO_REGISTER)
+        #print(measurement)
         measurement.downscale_values(self.gyro_LSB)
+        #print(measurement)
+        measurement.to_radians()
+        #print(measurement)
         return measurement
 
     # TODO:
@@ -106,7 +126,8 @@ class Sensors:
         # print(math.degrees(angle_xy))
         dt = time.time() - self.timestamp
         y_n = (1 - self.a) * angle_xy + self.a * self.angle
-        self.angle = (1 - self.a) * (self.angle + gyro_z * dt) + (self.a) * angle_xy
+        #self.angle = (1 - self.a) * (self.angle + gyro_z * dt) + (self.a) * angle_xy
+        self.angle = angle_xy
         self.timestamp = time.time()
         return self.angle, dt
 
@@ -126,9 +147,9 @@ def test_filter():
     sensors = Sensors(channel, address)
     current_angle, dt = sensors.get_angle()
     print(math.degrees(current_angle))
-    for x in range(1000):
+    for x in range(10000):
         current_angle, dt = sensors.get_angle()
-        if not x % 10:
+        if x % 10:
             print(math.degrees(current_angle))
         time.sleep(0.01)
 
@@ -138,6 +159,13 @@ def test_gyro():
     address = 0x68
     sensors = Sensors(channel, address)
     print(sensors.read_gyroscope())
+
+
+def test_accel():
+    channel = 1
+    address = 0x68
+    sensors = Sensors(channel, address)
+    print(sensors.calc_accel_angle())
 
 
 if __name__ == '__main__':

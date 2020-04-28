@@ -6,11 +6,11 @@ odrives:
   brake_resistance: 0.47
   current_lim: 15
   calibration_current: 10
-  vel_limit: 50000
+  vel_limit: 100000
   axis_inverted_forward_direction:
+  - true
   - false
-  - false
-  - false
+  - true
   - false
   serialnumber0: 206739834D4D
   serialnumber1: 204F39824D4D

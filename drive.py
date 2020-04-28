@@ -35,8 +35,8 @@ class OdriveController:
         self.axises = []
         with open(config_name, "r") as yml_file:
             config = yaml.load(yml_file, Loader=yaml.FullLoader)
-        # self.serial_numbers = [config["odrives"]["serialnumber0"] , config["odrives"]["serialnumber1"]]
-        self.serial_numbers = [config["odrives"]["serialnumber0"]]
+        self.serial_numbers = [config["odrives"]["serialnumber0"] , config["odrives"]["serialnumber1"]]
+        #self.serial_numbers = [config["odrives"]["serialnumber0"]]
         # Makes sure that motors mounted the wrong way still work
         self.axises_forward_direction = [-1 if x else 1 for x in config["odrives"]["axis_inverted_forward_direction"]]
         self.find_odrives()

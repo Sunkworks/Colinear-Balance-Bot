@@ -1,8 +1,9 @@
 class PID:
     def __init__(self):
-        self.kP = 1
-        self.kI = 1
-        self.kD = 1
+        self.file_name = "PID.txt"
+        self.kP = 160
+        self.kI = 0
+        self.kD = 3
 
         self.P = 0
         self.I = 0
@@ -13,6 +14,12 @@ class PID:
 
         self.last_error = 0
         self.error_val = 0
+
+    def update_constants(self):
+        with open(self.file_name, 'r') as infile:
+            self.kP = float(infile.readline())
+            self.kI = float(infile.readline())
+            self.kD = float(infile.readline())
 
     def set_setpoint(self, new_setpoint):
         """ changes the setpoint to a new value.
@@ -37,10 +44,11 @@ class PID:
         self.P = self.error_val
 
     def calc_integral(self):
+        # TODO: add min and max-val
         # Resets the integral term when passing the top position
-        if (self.last_error < 0 < self.error_val) or \
-                (self.last_error > 0 > self.error_val):
-            self.I = 0
+        #if (self.last_error < 0 < self.error_val) or \
+        #        (self.last_error > 0 > self.error_val):
+        #    self.I = 0
         self.I += self.error_val
 
     def get_control_variable(self):

@@ -26,7 +26,7 @@ def main():
             count = 0
             angle_count = 0
             angle_index = 0
-            angles = [math.radians(-1.0), 0, math.radians(1.0)]
+            angles = [math.radians(-1.0), math.radians(1.0)]
             while True:
                 count += 1
                 angle_count += 1
@@ -34,10 +34,10 @@ def main():
                     control.update_constants()
                     count = 0
                 angle, dt = sensors.get_angle()
-                if angle_count == 200:
+                if angle_count == 100:
                     print("IN ANGLE CHANGER")
-                    angle_index = (angle_index + 1) % 3
-                    control.set_setpoint(angles[angle_index])
+                    angle_index = (angle_index + 1) % len(angles)
+                    #control.set_setpoint(angles[angle_index])
                     angle_count = 0
 
                 if abs(math.degrees(angle)) > MAX_ANGLE:

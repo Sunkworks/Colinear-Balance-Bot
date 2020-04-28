@@ -73,9 +73,15 @@ class Sensors:
         #raw_data = self.bus.read_i2c_block_data(self.address, register.value, 2)
         time.sleep(0.0001)
         raw_data = [0, 0]
-        raw_data[0] = self.bus.read_byte_data(self.address, register.value)
-        time.sleep(0.0001)
-        raw_data[1] = self.bus.read_byte_data(self.address, register.value)
+        for i in range(2):
+            try:
+                raw_data[0] = self.bus.read_byte_data(self.address, register.value)
+                time.sleep(0.0001)
+                raw_data[1] = self.bus.read_byte_data(self.address, register.value)
+                break
+            except OSError:
+                time.sleep(0.0001)
+                continue
         unsigned_val = (raw_data[0] << 8) + raw_data[1]
         return twos_complement(unsigned_val, 16)
 
@@ -125,9 +131,9 @@ class Sensors:
         angle_xy = self.calc_accel_angle()
         # print(math.degrees(angle_xy))
         dt = time.time() - self.timestamp
-        y_n = (1 - self.a) * angle_xy + self.a * self.angle
-        #self.angle = (1 - self.a) * (self.angle + gyro_z * dt) + (self.a) * angle_xy
-        self.angle = angle_xy
+        #y_n = (1 - self.a) * angle_xy + self.a * self.angle
+        self.angle = self.a * (self.angle + gyro_z * dt) + (1 - self.a) * angle_xy
+        #self.angle = angle_xy
         self.timestamp = time.time()
         return self.angle, dt
 

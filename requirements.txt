@@ -1,3 +1,4 @@
 pyyaml
 odrive
 smbus2 
+pygame

@@ -11,7 +11,7 @@ import pid_class
 ### Functions to call with specified intervals ###
 class ManualNavigator:
     def __init__(self, max_angle=45, scaling_factor=1000):
-        self.MAX_ANGLE = max_angle
+        self.MAX_ANGLE = math.radians(max_angle)
         self.SCALING_FACTOR = scaling_factor
         self.pid = pid_class.PID()
         self.pid.update_constants()
@@ -69,4 +69,4 @@ class ManualNavigator:
 
     @property
     def fallen_over(self):
-        return abs(math.degrees(self.angle)) > self.MAX_ANGLE
+        return abs(self.angle) > self.MAX_ANGLE

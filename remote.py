@@ -36,7 +36,7 @@ def main():
     remote = RemoteController()
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    ani = animation.FuncAnimation(fig, xyPlot, fargs=(0, 1, remote), interval=50)
+    ani = animation.FuncAnimation(fig, xyPlot, fargs=(0, 1), interval=50)
     plt.show()
 
 

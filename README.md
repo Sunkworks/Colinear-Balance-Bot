@@ -1,4 +1,4 @@
-# Colinear-Balance-Bot
+# Colinear Balance Bot
 Git Repo for Sunkworks' Colinear Balancing Robot.
 
 ## Code flow
@@ -20,8 +20,9 @@ Planned feature: set rpm offset to the rest of the motors, to drive collinearly 
 ##### Not yet finished:
 `remote.py` - **TODO**: turn into API for dualshock controller
 
-### Current main code:
-The files that interact with the APIs in various ways.
 
-`main.py` - loop which tries to balance the robot in place.
-A good example of a non-interrupt based way of interacting with the APIs.
+### Examples / Working implementations:
+`manual_navigator.py` and `main.py` - An middleware and matching main loop.
+Allows the user to control the robot manually with a DualShock (PlayStation) 4 controller.
+Note: Due to the usage of `time.sleep()` in the main loop,
+the delay between iterations isn't very precise (1ms ±0.5ms).

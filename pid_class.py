@@ -17,6 +17,8 @@ class PID:
 
         self.last_error = 0
         self.error_val = 0
+        self.y = 0
+        self.need_to_calc_y = True #prevents having to calculate the y_val more often than needed
 
     def update_constants(self):
         with open(self.file_name, 'r') as infile:
@@ -39,6 +41,7 @@ class PID:
     def set_process_variable(self, measurement, dt):
         """ measurement: the latest measured value
         dt: the time between this measurement and the last one """
+        self.need_to_calc_y = True
         self.process_variable = measurement
         self.dt = dt
 
@@ -64,13 +67,16 @@ class PID:
         #print(self.I)
 
     def get_control_variable(self):
+        if not self.need_to_calc_y:
+            return self.y
         self.calculate_error_val()
         self.calc_proportional()
         self.calc_integral()
         self.calc_deriviate()
         # TODO: try with squared P value
-        y = self.P * self.kP + self.I * self.kI + self.D * self.kD
-        return y
+        self.y = self.P * self.kP + self.I * self.kI + self.D * self.kD
+        self.need_to_calc_y = False
+        return self.y
 
     #   How to use:
     #      Set control variable val + time between measurements

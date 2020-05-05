@@ -9,7 +9,6 @@ import remote
 import pid_class
 
 
-### Functions to call with specified intervals ###
 class ManualNavigator:
     def __init__(self, max_angle=45, max_setpoint_angle=10, scaling_factor=1000):
         self.MAX_ANGLE = math.radians(max_angle)

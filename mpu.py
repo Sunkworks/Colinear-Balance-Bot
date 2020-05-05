@@ -71,16 +71,13 @@ class Sensors:
             assumption: the low byte is stored in the subsequent register
             """
         #raw_data = self.bus.read_i2c_block_data(self.address, register.value, 2)
-        time.sleep(0.0001)
         raw_data = [0, 0]
         for i in range(2):
             try:
                 raw_data[0] = self.bus.read_byte_data(self.address, register.value)
-                time.sleep(0.0001)
                 raw_data[1] = self.bus.read_byte_data(self.address, register.value)
                 break
             except OSError:
-                time.sleep(0.0001)
                 continue
         unsigned_val = (raw_data[0] << 8) + raw_data[1]
         return twos_complement(unsigned_val, 16)
@@ -90,13 +87,9 @@ class Sensors:
             REGISTER: Enum with x, y and z addresses."""
         output = Vector()
         #bus = SMBus(self.channel)  # TODO: have bus permanently open instead
-        time.sleep(0.0001)
         output.x = self.twobyte_merge(REGISTER.X)
-        time.sleep(0.0001)
         output.y = self.twobyte_merge(REGISTER.Y)
-        time.sleep(0.0001)
         output.z = self.twobyte_merge(REGISTER.Z)
-        time.sleep(0.0001)
         #bus.close()
         return output
 

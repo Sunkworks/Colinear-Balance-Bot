@@ -1,5 +1,5 @@
 # Colinear-Balance-Bot
-Git Repo for Sunkwork's Colinear Balancing Robot.
+Git Repo for Sunkworks' Colinear Balancing Robot.
 
 ## Code flow
 ### APIs that have to be used:

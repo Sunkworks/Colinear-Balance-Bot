@@ -5,18 +5,22 @@ import odrive.enums
 
 import drive
 import mpu
+import remote
 import pid_class
 
 
 ### Functions to call with specified intervals ###
 class ManualNavigator:
-    def __init__(self, max_angle=45, scaling_factor=1000):
+    def __init__(self, max_angle=45, max_setpoint_angle=10, scaling_factor=1000):
         self.MAX_ANGLE = math.radians(max_angle)
+        self.MAX_SETPOINT_ANGLE = math.radians(max_setpoint_angle)
         self.SCALING_FACTOR = scaling_factor
         self.pid = pid_class.PID()
         self.pid.update_constants()
         self.pid_output = 0
         self.imu = mpu.Sensors(1, 0x68)
+        self.remote = remote.RemoteController()
+        self.update_user_angle()
         self.odrv = drive.OdriveController()
         self.setup_odrive()
         self.angle = self.dt = 0  # Values set in update_pid
@@ -24,7 +28,6 @@ class ManualNavigator:
         self.update_pid()
 
     def start(self):
-        # Start all the timers
         self.imu.reset_angle()
         self.running = True
 
@@ -47,6 +50,11 @@ class ManualNavigator:
         print("Done, please standby...")
         time.sleep(1)
 
+    def update_user_angle(self):
+        main_axis_input = self.remote.get_y_axis()
+        angle = main_axis_input * self.MAX_SETPOINT_ANGLE
+        self.pid.set_setpoint(angle)
+
     def update_pid(self):
         self.angle, self.dt = self.imu.get_angle()
         self.pid.set_process_variable(self.angle, self.dt)
@@ -58,6 +66,7 @@ class ManualNavigator:
 
     def main_task(self):
         """ Returns: true if ok, false if not"""
+        self.update_user_angle()
         self.update_pid()
         self.update_odrive_output()
         if self.fallen_over:
@@ -65,6 +74,7 @@ class ManualNavigator:
         return not self.fallen_over
 
     def print_telemetry(self):
+        print(f"Setpoint: {math.degrees(self.pid.setpoint)}")
         print(f"Angle: {math.degrees(self.angle)}\tOutput: {self.pid_output}")
 
     @property

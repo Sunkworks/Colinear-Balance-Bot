@@ -10,7 +10,14 @@ class RemoteController:
         self.joy.init()
 
     def get_axis(self, axis):
-        return round(self.joy.get_axis(axis), 2)
+        pygame.event.get()
+        return self.joy.get_axis(axis)
+
+    def get_y_axis(self):
+        return self.get_axis(1)
+
+    def get_x_axis(self):
+        return self.get_axis(0)
 
 
 def main():
@@ -18,7 +25,6 @@ def main():
     import matplotlib.animation as animation
 
     def xyPlot(i, axis1, axis2):
-        pygame.event.get()
         sx = remote.get_axis(axis1)
         sy = -remote.get_axis(axis2)
         print("SX:", sx)

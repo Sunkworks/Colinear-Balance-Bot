@@ -52,12 +52,12 @@ class ManualNavigator:
         time.sleep(1)
 
     def update_user_angle(self):
-        main_axis_input = self.remote.get_y_axis()
+        main_axis_input = self.remote.get_ly_axis()
         angle = main_axis_input * self.MAX_SETPOINT_ANGLE
         self.pid.set_setpoint(angle)
 
     def update_collinear_offset(self):
-        collinear_input = self.remote.get_x_axis()
+        collinear_input = self.remote.get_lx_axis()
         collinear_offset = collinear_input * self.MAX_COLLINEAR_OFFSET
         self.odrv.set_collinear_offsets(collinear_offset)
 

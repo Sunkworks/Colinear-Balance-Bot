@@ -9,16 +9,22 @@ class RemoteController:
         self.joy = pygame.joystick.Joystick(0)
         self.joy.init()
 
-        self.last_axis = [0] * 10
+        self.lerp_axis = [0] * 10
         self.interpolant = 0.6
+        self.scaling_factor = 0.5 # Must be between 0-1
 
-    def lerp(self, a, b, t):
-        return (t * a) + ((1 - t) * b)
+    def lerp(self, a, b):
+        '''Linear Interpolation form a to b'''
+        #TODO Multiply interpolant with delta time
+        return (self.interpolant * a) + ((1 - self.interpolant) * b)
+
+    def expo(self, input):
+        return self.scaling_factor * input ** 3 + (1-self.scaling_factor)*input
 
     def get_axis(self, axis):
         pygame.event.get()
-        self.last_axis[axis] = self.lerp(self.last_axis[axis], self.joy.get_axis(axis), self.interpolant)
-        return self.last_axis[axis]
+        self.lerp_axis[axis] = self.lerp(self.lerp_axis[axis], self.joy.get_axis(axis))
+        return self.expo(self.lerp_axis[axis])
 
     def get_ly_axis(self):
         return -self.get_axis(1)

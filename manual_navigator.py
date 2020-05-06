@@ -10,9 +10,10 @@ import pid_class
 
 
 class ManualNavigator:
-    def __init__(self, max_angle=45, max_setpoint_angle=10, scaling_factor=1000):
+    def __init__(self, max_angle=45, max_setpoint_angle=10, scaling_factor=1000, max_collinear_offset=500):
         self.MAX_ANGLE = math.radians(max_angle)
         self.MAX_SETPOINT_ANGLE = math.radians(max_setpoint_angle)
+        self.MAX_COLLINEAR_OFFSET = max_collinear_offset
         self.SCALING_FACTOR = scaling_factor
         self.pid = pid_class.PID()
         self.pid.update_constants()
@@ -32,6 +33,7 @@ class ManualNavigator:
 
     def stop(self):
         self.running = False
+        self.odrv.set_collinear_offsets(0)
         self.odrv.set_all_motors_speed(0)
 
     def cleanup(self):
@@ -54,6 +56,11 @@ class ManualNavigator:
         angle = main_axis_input * self.MAX_SETPOINT_ANGLE
         self.pid.set_setpoint(angle)
 
+    def update_collinear_offset(self):
+        collinear_input = self.remote.get_x_axis()
+        collinear_offset = collinear_input * self.MAX_COLLINEAR_OFFSET
+        self.odrv.set_collinear_offsets(collinear_offset)
+
     def update_pid(self):
         self.angle, self.dt = self.imu.get_angle()
         self.pid.set_process_variable(self.angle, self.dt)
@@ -66,6 +73,7 @@ class ManualNavigator:
     def main_task(self):
         """ Returns: true if ok, false if not"""
         self.update_user_angle()
+        self.update_collinear_offset()
         self.update_pid()
         self.update_odrive_output()
         if self.fallen_over:

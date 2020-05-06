@@ -33,10 +33,11 @@ class OdriveController:
     def __init__(self, config_name=YML_FILE_NAME):
         self.drives = []  # A list of all odrives being controlled
         self.axises = []
+        self.axis_velocity_offsets = [0] * 4  # A matching list of velocity offsets for turning and colinear driving
         with open(config_name, "r") as yml_file:
             config = yaml.load(yml_file, Loader=yaml.FullLoader)
-        self.serial_numbers = [config["odrives"]["serialnumber0"] , config["odrives"]["serialnumber1"]]
-        #self.serial_numbers = [config["odrives"]["serialnumber0"]]
+        self.serial_numbers = [config["odrives"]["serialnumber0"], config["odrives"]["serialnumber1"]]
+        # self.serial_numbers = [config["odrives"]["serialnumber0"]]
         # Makes sure that motors mounted the wrong way still work
         self.axises_forward_direction = [-1 if x else 1 for x in config["odrives"]["axis_inverted_forward_direction"]]
         self.find_odrives()
@@ -126,9 +127,12 @@ class OdriveController:
     def set_motor_speed(self, axis_index: int, velocity: float):
         axis = self.axises[axis_index]
         axis_forward = self.axises_forward_direction[axis_index]
-        # assert axis.current_state == CTRL_MODE_VELOCITY_CONTROL, "Motor isn't in velocity ctrl mode"
         axis.controller.vel_setpoint = velocity * axis_forward
 
     def set_all_motors_speed(self, velocity: float):
-        for axis, forward in zip(self.axises, self.axises_forward_direction):
-            axis.controller.vel_setpoint = velocity * forward
+        for axis, forward, motor_offset in zip(self.axises, self.axises_forward_direction, self.axis_velocity_offsets):
+            axis.controller.vel_setpoint = velocity * forward + motor_offset
+
+    def set_collinear_offsets(self, offset_magnitude):
+        self.axis_velocity_offsets[0] = self.axis_velocity_offsets[2] = offset_magnitude
+        self.axis_velocity_offsets[1] = self.axis_velocity_offsets[3] = -offset_magnitude

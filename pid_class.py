@@ -62,9 +62,10 @@ class PID:
         #        (self.last_error > 0 > self.error_val):
         #    self.I = 0
         self.I += self.error_val
-        if abs(self.I) > self.max_I_val:
+        if self.I > self.max_I_val:
             self.I = self.max_I_val
-        #print(self.I)
+        elif self.I < -self.max_I_val:
+            self.I = -self.max_I_val
 
     def get_control_variable(self):
         if not self.need_to_calc_y:

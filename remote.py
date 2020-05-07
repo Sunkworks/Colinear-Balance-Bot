@@ -12,7 +12,7 @@ class RemoteController:
 
         self.last_axis_state = [0] * self.joy.get_numaxes()
         self.interpolant = 0
-        self.scaling_factor = 0.0 # Must be between 0-1
+        self.scaling_factor = 0.5 # Must be between 0-1
         self.timestamp = time.time()
 
     def lerp(self, a, b):
@@ -34,10 +34,10 @@ class RemoteController:
         return self.get_axis(0)
 
     def get_ry_axis(self):
-        return -self.get_axis(4)
+        return -self.get_axis(5)
 
     def get_rx_axis(self):
-        return self.get_axis(3)
+        return self.get_axis(2)
 
 
 def main():

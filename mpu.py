@@ -64,6 +64,8 @@ class Sensors:
     def reset_angle(self):
         # Call when robot is stationary, calcs current angle entirely from accelerometer
         self.angle = self.calc_accel_angle()
+        return self.angle
+        print("resetting angle, new:", self.angle)
 
     def twobyte_merge(self, register):
         """ Returns: numerical value from high and low byte
@@ -100,7 +102,7 @@ class Sensors:
     def calc_accel_angle(self):
         reading = self.read_accelerometer()
         if reading.x == 0:
-            raise ValueError
+            return 0
         return -math.atan(1.0 * reading.y / reading.x)
 
     def read_gyroscope(self):
@@ -150,7 +152,7 @@ def test_filter():
         current_angle, dt = sensors.get_angle()
         if x % 10:
             print(math.degrees(current_angle))
-        time.sleep(0.01)
+        time.sleep(0.001)
 
 
 def test_gyro():
@@ -158,6 +160,7 @@ def test_gyro():
     address = 0x68
     sensors = Sensors(channel, address)
     print(sensors.read_gyroscope())
+    print(sensors.read_accelerometer())
 
 
 def test_accel():
@@ -168,5 +171,6 @@ def test_accel():
 
 
 if __name__ == '__main__':
-    test_filter()
-    # test_gyro()
+    #test_filter()
+    #test_accel()
+    test_gyro()

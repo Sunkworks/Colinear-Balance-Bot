@@ -1,6 +1,7 @@
 import time
 
-import manual_navigator
+import simple_navigator
+import os
 
 
 def countdown_seconds(seconds):
@@ -10,7 +11,7 @@ def countdown_seconds(seconds):
 
 
 def main():
-    navigator = manual_navigator.ManualNavigator()
+    navigator = simple_navigator.ManualNavigator()
     countdown_seconds(3)
     try:
         while True:
@@ -20,13 +21,15 @@ def main():
             while not navigator.fallen_over:
                 navigator.main_task()
 
-                if iter_count % 100:
-                    navigator.pid.update_constants()
+                if iter_count % 500:
+                    navigator.update_constants()
                     navigator.print_telemetry()
 
+                iter_count += 1
                 iter_count = iter_count % max_iter_count
                 time.sleep(0.001)
 
+            navigator.stop()
             input("Angle too big, press enter to continue")
 
     finally:

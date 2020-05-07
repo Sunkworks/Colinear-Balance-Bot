@@ -5,12 +5,12 @@ import odrive.enums
 
 import drive
 import mpu
-import remote
+#import remote
 import pid_class
 
 
 class ManualNavigator:
-    def __init__(self, max_angle=45, max_setpoint_angle=10, scaling_factor=1000, max_collinear_offset=500):
+    def __init__(self, max_angle=45, max_setpoint_angle=5, scaling_factor=1000, max_collinear_offset=100):
         self.MAX_ANGLE = math.radians(max_angle)
         self.MAX_SETPOINT_ANGLE = math.radians(max_setpoint_angle)
         self.MAX_COLLINEAR_OFFSET = max_collinear_offset
@@ -19,8 +19,8 @@ class ManualNavigator:
         self.pid.update_constants()
         self.pid_output = 0
         self.imu = mpu.Sensors(1, 0x68)
-        self.remote = remote.RemoteController()
-        self.update_user_angle()
+        #self.remote = remote.RemoteController()
+        #self.update_user_angle()
         self.odrv = drive.OdriveController()
         self.setup_odrive()
         self.angle = self.dt = 0  # Values set in update_pid
@@ -28,7 +28,7 @@ class ManualNavigator:
         self.update_pid()
 
     def start(self):
-        self.imu.reset_angle()
+        self.angle = self.imu.reset_angle()
         self.running = True
 
     def stop(self):
@@ -42,6 +42,7 @@ class ManualNavigator:
         self.imu.bus.close()
 
     def setup_odrive(self):
+        print("Starting calibration...")
         self.odrv.calibrate()
         print("Calibration finished.")
         print("Setting axis state...")
@@ -72,8 +73,8 @@ class ManualNavigator:
 
     def main_task(self):
         """ Returns: true if ok, false if not"""
-        self.update_user_angle()
-        self.update_collinear_offset()
+        #self.update_user_angle()
+        #self.update_collinear_offset()
         self.update_pid()
         self.update_odrive_output()
         if self.fallen_over:
@@ -86,4 +87,7 @@ class ManualNavigator:
 
     @property
     def fallen_over(self):
-        return abs(self.angle) > self.MAX_ANGLE
+        if abs(self.imu.angle) > self.MAX_ANGLE:
+            print("has fallen over, ", math.degrees(self.imu.angle), "\t", math.degrees(self.MAX_ANGLE))
+            return True
+        return False

@@ -1,4 +1,5 @@
 import math
+import os
 
 class PID:
     def __init__(self):
@@ -21,6 +22,7 @@ class PID:
         self.need_to_calc_y = True #prevents having to calculate the y_val more often than needed
 
     def update_constants(self):
+        print(os.listdir())
         with open(self.file_name, 'r') as infile:
             kP, kI, kD, max_I = (float(infile.readline()) for i in range(4))
             if kP != self.kP or kI != self.kI or kD != self.kD or max_I != self.max_I_val:

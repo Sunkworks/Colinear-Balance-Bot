@@ -29,11 +29,16 @@ def save_drive_config(drive):
         pass
 
 
+OUTER_LEFT = 2
+OUTER_RIGHT = 3
+INNER_LEFT = 1
+INNER_RIGHT = 0
+
 class OdriveController:
     def __init__(self, config_name=YML_FILE_NAME):
         self.drives = []  # A list of all odrives being controlled
         self.axises = []
-        self.axis_velocity_offsets = [0] * 4  # A matching list of velocity offsets for turning and colinear driving
+        self.axis_offsets = [{"rotational": 0, "collinear": 0} for x in range(4)]
         with open(config_name, "r") as yml_file:
             config = yaml.load(yml_file, Loader=yaml.FullLoader)
         self.serial_numbers = [config["odrives"]["serialnumber0"], config["odrives"]["serialnumber1"]]
@@ -130,9 +135,18 @@ class OdriveController:
         axis.controller.vel_setpoint = velocity * axis_forward
 
     def set_all_motors_speed(self, velocity: float):
-        for axis, forward, motor_offset in zip(self.axises, self.axises_forward_direction, self.axis_velocity_offsets):
-            axis.controller.vel_setpoint = velocity * forward + motor_offset
+        for axis, forward, offset in zip(self.axises, self.axises_forward_direction, self.axis_offsets):
+            axis.controller.vel_setpoint = forward * (velocity + sum(offset.values()))
 
     def set_collinear_offsets(self, offset_magnitude):
-        self.axis_velocity_offsets[0] = self.axis_velocity_offsets[2] = offset_magnitude
-        self.axis_velocity_offsets[1] = self.axis_velocity_offsets[3] = -offset_magnitude
+        self.axis_offsets[OUTER_LEFT]["collinear"] =   -offset_magnitude
+        self.axis_offsets[INNER_RIGHT]["collinear"] =  -offset_magnitude
+        self.axis_offsets[OUTER_RIGHT]["collinear"] =   offset_magnitude
+        self.axis_offsets[INNER_LEFT]["collinear"] =    offset_magnitude
+
+    def set_rotational_offsets(self, offset_magnitude):
+        radius_ratio = 0.61
+        self.axis_offsets[OUTER_LEFT]["rotational"]  =  offset_magnitude
+        self.axis_offsets[INNER_LEFT]["rotational"]  =  offset_magnitude * radius_ratio 
+        self.axis_offsets[OUTER_RIGHT]["rotational"] = -offset_magnitude
+        self.axis_offsets[INNER_RIGHT]["rotational"] = -offset_magnitude * radius_ratio 

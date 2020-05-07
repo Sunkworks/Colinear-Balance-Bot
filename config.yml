@@ -3,10 +3,10 @@ general:
   gearRatio: 3.6
 odrives:
   newConfig: false
-  brake_resistance: 0.47
+  brake_resistance: 0
   current_lim: 15
   calibration_current: 10
-  vel_limit: 100000
+  vel_limit: 500000
   axis_inverted_forward_direction:
   - true
   - false
@@ -16,4 +16,4 @@ odrives:
   serialnumber1: 204F39824D4D
   pos_gain: 20.0
   vel_gain: 0.0005
-  vel_integrator_gain: 0.001
+  vel_integrator_gain: 0.005

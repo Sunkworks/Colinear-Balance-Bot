@@ -1,4 +1,5 @@
 import pygame
+import time
 
 
 class RemoteController:
@@ -9,13 +10,13 @@ class RemoteController:
         self.joy = pygame.joystick.Joystick(0)
         self.joy.init()
 
-        self.lerp_axis = [0] * 10
-        self.interpolant = 0.6
-        self.scaling_factor = 0.5 # Must be between 0-1
+        self.last_axis_state = [0] * self.joy.get_numaxes()
+        self.interpolant = 0
+        self.scaling_factor = 0.0 # Must be between 0-1
+        self.timestamp = time.time()
 
     def lerp(self, a, b):
         '''Linear Interpolation form a to b'''
-        #TODO Multiply interpolant with delta time
         return (self.interpolant * a) + ((1 - self.interpolant) * b)
 
     def expo(self, input):
@@ -23,8 +24,8 @@ class RemoteController:
 
     def get_axis(self, axis):
         pygame.event.get()
-        self.lerp_axis[axis] = self.lerp(self.lerp_axis[axis], self.joy.get_axis(axis))
-        return self.expo(self.lerp_axis[axis])
+        self.last_axis_state[axis] = self.lerp(self.last_axis_state[axis], self.joy.get_axis(axis))
+        return self.expo(self.last_axis_state[axis])
 
     def get_ly_axis(self):
         return -self.get_axis(1)
@@ -56,11 +57,12 @@ def main():
         ax.scatter(sx, sy)
         ax.scatter(rx, ry)
 
+
     remote = RemoteController()
     print(remote.joy.get_numaxes())
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    ani = animation.FuncAnimation(fig, xyPlot, interval=50)
+    ani = animation.FuncAnimation(fig, xyPlot, interval=1)
     plt.show()
 
 

@@ -28,8 +28,8 @@ class ManualNavigator:
         self.update_pid()
 
     def start(self):
-        self.angle = self.imu.reset_angle()
         self.running = True
+        self.angle = self.imu.reset_angle()
 
     def stop(self):
         self.running = False

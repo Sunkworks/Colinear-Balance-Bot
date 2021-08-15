@@ -36,7 +36,7 @@ class ManualNavigator:
             kP, kI, kD, max_I = (float(infile.readline()) for i in range(4))
             if kP != self.pid.Kp or kI != self.pid.Ki or kD != self.pid.Kd:
                 print("New constants fixed. resetting I-val.")
-                #self.I = 0
+                self.pid.I = 0
                 self.pid.Kp = kP
                 self.pid.Ki = kI
                 self.pid.Kd = kD
@@ -46,17 +46,23 @@ class ManualNavigator:
     def start(self):
         self.angle = self.imu.reset_angle()
         self.pid.reset()
+        
+        self.odrv.set_axis_state(odrive.enums.AXIS_STATE_CLOSED_LOOP_CONTROL)
         self.running = True
 
     def stop(self):
         self.running = False
         self.odrv.set_collinear_offsets(0)
         self.odrv.set_all_motors_speed(0)
+        self.odrv.set_axis_state(odrive.enums.AXIS_STATE_IDLE)
 
     def cleanup(self):
         self.odrv.set_all_motors_speed(0)
         self.odrv.set_axis_state(odrive.enums.AXIS_STATE_IDLE)
         self.imu.bus.close()
+
+    def get_button(self, button):
+        return self.remote.get_button(button)
 
     def setup_odrive(self):
         print("Starting calibration...")

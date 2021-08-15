@@ -1,14 +1,16 @@
 import pygame
 import time
-
+from indicator import *
 
 class RemoteController:
     def __init__(self):
         print("Controller init.")
         self.screen = pygame.display.set_mode([10, 10])  # Piece of shit nightmare thing
+        
         pygame.joystick.init()
         self.joy = pygame.joystick.Joystick(0)
         self.joy.init()
+        print("Controller found!")
 
         self.last_axis_state = [0] * self.joy.get_numaxes()
         self.interpolant = 0
@@ -38,6 +40,10 @@ class RemoteController:
 
     def get_rx_axis(self):
         return self.get_axis(2)
+    
+    def get_button(self, button):
+        pygame.event.get()
+        return self.joy.get_button(button)
 
 
 def main():

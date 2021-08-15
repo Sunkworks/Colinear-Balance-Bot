@@ -69,7 +69,7 @@ class OdriveController:
                 voltage = drive.vbus_voltage
                 print("Voltage: ", voltage)
 
-                if voltage < 19.0:
+                if voltage < 17.0:
                     print("Low Voltage! Charge the battery and try again. Program will NOT proceed.")
                     while True:
                         indicate(2, (255, 0, 0))

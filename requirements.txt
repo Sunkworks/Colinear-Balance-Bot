@@ -1,4 +1,6 @@
-pyyaml
-odrive
-smbus2 
+pyyaml==5.3.1
+odrive==0.4.11
+smbus2==0.3.0
 pygame==1.9.6
+Adafruit-Blinka==4.3.0
+RPi.GPIO==0.7.0

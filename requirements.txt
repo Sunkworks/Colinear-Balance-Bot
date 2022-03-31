@@ -1,4 +1,4 @@
 pyyaml
 odrive
 smbus2 
-pygame
+pygame==1.9.6

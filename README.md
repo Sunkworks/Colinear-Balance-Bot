@@ -41,3 +41,7 @@ Planned feature: set rpm offset to the rest of the motors, to drive collinearly 
 Allows the user to control the robot manually with a DualShock (PlayStation) 4 controller.
 Note: Due to the usage of `time.sleep()` in the main loop,
 the delay between iterations isn't very precise (1ms ±0.5ms).
+
+### Install guide Raspberry Pi OS
+sudo apt install libportaudio0 libportaudio2 libportaudiocpp0 portaudio19-dev python-dev
+sudo pip3 install -r requirements.txt

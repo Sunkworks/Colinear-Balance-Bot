@@ -1,5 +1,6 @@
 import math
 import os
+from multiprocessing import Process
 
 class PID:
     def __init__(self):
@@ -84,3 +85,27 @@ class PID:
     #   How to use:
     #      Set control variable val + time between measurements
     #      use get_control_variable to get output value
+"""
+
+processes = []
+
+for i in range(os.cpu_count()):
+    print('registering process %d' % i)
+    processes.append(Process(target=update_constants, args=(self)))
+ processes.append(Process(target=set_setpoint))
+    processes.append(Process(target=set_process_variable))
+    processes.append(Process(target=calculate_error_val))
+    processes.append(Process(target=calc_deriviate))
+    processes.append(Process(target=calc_proportional))
+    processes.append(Process(target=calc_integral))
+    processes.append(Process(target=get_control_variable)) 
+
+
+for process in processes:
+	process.start()
+
+for process in processes:
+	process.join()
+
+
+    """

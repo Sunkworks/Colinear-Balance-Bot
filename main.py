@@ -1,4 +1,7 @@
 import time
+import multiprocessing as mp
+from multiprocessing import Process
+import math
 
 import simple_navigator
 import os
@@ -10,6 +13,8 @@ from startup import find_controller
 
 def main():
     find_controller()
+    #p1 = mp.Process(target=find_controller, args=())
+    #p1.start()
 
     heartbeat_color = (255, 0, 255)
     heartbeat_state = True
@@ -24,12 +29,18 @@ def main():
     try:
         while True:
             navigator.start()
+            #p2 = mp.Process(target=navigator.start, args=())
+            #p2.start()
+          
             indicate(0,(0, 255, 0))
             iter_count = 0
             max_iter_count = 1000
             while not navigator.fallen_over:
                 navigator.main_task()
-
+                #p3 = mp.Process(target=navigator.main_task.start, args=())
+                #p3.start()
+                
+                
                 if not iter_count % 32:
                     color = heartbeat_color if heartbeat_state else (255, 255, 255)
                     indicate(0, color)
@@ -58,3 +69,18 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    processes = []
+
+    for i in range(os.cpu_count()):
+        print('registering process %d' % i)
+        processes.append(Process(target=calc))
+
+    for process in processes:
+        process.start()
+
+    for process in processes:
+        process.join()
+    
+
+#p1 = mp.Process(target=navigator.start, args=())

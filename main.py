@@ -69,7 +69,7 @@ def main():
 
 if __name__ == '__main__':
     main()
-
+"""
     processes = []
 
     for i in range(os.cpu_count()):
@@ -85,3 +85,5 @@ if __name__ == '__main__':
 
 #p1 = mp.Process(target=navigator.start, args=())
 #Test
+
+"""

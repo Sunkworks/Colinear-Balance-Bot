@@ -1,6 +1,7 @@
 import pygame
 import time
 import os
+from multiprocessing import Process
 
 
 class RemoteController:
@@ -59,3 +60,16 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+processes = []
+
+for i in range(os.cpu_count()):
+	print('registering process %d' % i)
+	processes.append(Process(target=main))
+
+for process in processes:
+	process.start()
+
+for process in processes:
+	process.join()

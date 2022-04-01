@@ -48,7 +48,7 @@ Install guide Raspberry Pi OS
 Install required packages for Raspberry Pi OS
 
 ```
-# apt install libportaudio0 libportaudio2 libportaudiocpp0 portaudio19-dev python-dev
+# apt install libportaudio0 libportaudio2 libportaudiocpp0 portaudio19-dev python-dev libatlas-base-dev
 ```
 Install pip packages
 

@@ -12,9 +12,9 @@ from indicator import indicate
 from startup import find_controller
 
 def main():
-    find_controller()
-    #p1 = mp.Process(target=find_controller, args=())
-    #p1.start()
+    #find_controller()
+    p1 = mp.Process(target=find_controller, args=())
+    p1.start()
 
     heartbeat_color = (255, 0, 255)
     heartbeat_state = True
@@ -28,17 +28,17 @@ def main():
 
     try:
         while True:
-            navigator.start()
-            #p2 = mp.Process(target=navigator.start, args=())
-            #p2.start()
+            #navigator.start()
+            p2 = mp.Process(target=navigator.start, args=())
+            p2.start()
           
             indicate(0,(0, 255, 0))
             iter_count = 0
             max_iter_count = 1000
             while not navigator.fallen_over:
-                navigator.main_task()
-                #p3 = mp.Process(target=navigator.main_task.start, args=())
-                #p3.start()
+                #navigator.main_task()
+                p3 = mp.Process(target=navigator.main_task.start, args=())
+                p3.start()
                 
                 
                 if not iter_count % 32:

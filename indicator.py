@@ -1,7 +1,7 @@
 import neopixel
 import board
 
-pixel_pin = board.D18
+pixel_pin = board.D18 #File used for indicating LED-lights on robot.
 pixel_count = 3
 pixel_order = neopixel.GRB
 

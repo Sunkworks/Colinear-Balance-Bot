@@ -69,7 +69,7 @@ class OdriveController:
                 voltage = drive.vbus_voltage
                 print("Voltage: ", voltage)
 
-                if voltage < 17.0:
+                if voltage < 17.0: #Has to be high than 17 volt.
                     print("Low Voltage! Charge the battery and try again. Program will NOT proceed.")
                     while True:
                         indicate(2, (255, 0, 0))
@@ -121,7 +121,7 @@ class OdriveController:
                     return False
             return True
 
-        print("Starting calibration...")
+        print("Starting calibration...") #Before use motors will be calibrated
         self.set_axis_state(AXIS_STATE_FULL_CALIBRATION_SEQUENCE)
         while not calibration_finished():
             time.sleep(0.1)

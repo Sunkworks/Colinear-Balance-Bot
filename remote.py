@@ -1,6 +1,6 @@
 import pygame #Used for controller
 import time #Delay
-from indicator import * #Indication for LED not in use
+#from indicator import * #Indication for LED not in use
 import os # for mp and other stuff
 from multiprocessing import Process #mp=multiproccessing
 

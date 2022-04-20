@@ -7,7 +7,9 @@ The battery must be charged to at least 17v or 3.4v/cell, and the user must have
 
 The robot is powered on by connecting the XT60-connector and flicking the switch, the booting procedure will then commence. Booting takes a while since DHCP has not been disabled, be patient. One of the indicator LEDs on top of the robot will briefly turn green, indicating that the first script is running.
 
-White-blue alternating flashing indicates that Bluetooth pairing is about to begin. Press and hold the SHARE and PS buttons on the dualShock remote until the remote begins to flash white and then release. Pairing may take some time but once it is complete an indicator on the robot will illuminate in solid blue and so will the remote.
+'
+White-blue alternating flashing indicates that Bluetooth pairing is about to begin. Press and hold the SHARE and PS buttons on the dualShock remote until the remote begins to flash white and then release. Pairing may take some time but once it is complete an indicator on the robot will illuminate in solid blue and so will the remote. //Currently not in use
+'
 
 For the next step, to calibrate the ODrives the robot must be placed in a way so the wheels do NOT touch the ground. Preferably prop the axel ends up on boxes or books. The calibration procedure is then started by pressing the TRIANGLE button on the remote. An indicator LED will turn yellow signifying that the robot is searching for & connecting to the ODrives. This also takes time. If the yellow indicator starts flashing red the battery voltage is too low and it will not proceed. If the battery is charged well enough another indicator will light up showing the current charge. It ranges from green (100%, 21v) to red (0%, 17v). The yellow indicator turns pink to signify that the calibration procedure has begun. A loud beep will be emitted and the motors will turn, this is normal.
 

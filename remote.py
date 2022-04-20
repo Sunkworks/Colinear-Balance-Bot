@@ -1,12 +1,12 @@
-import pygame
-import time
-from indicator import *
-import os
-from multiprocessing import Process
+import pygame #Used for controller
+import time #Delay
+from indicator import * #Indication for LED not in use
+import os # for mp and other stuff
+from multiprocessing import Process #mp=multiproccessing
 
 class RemoteController:
     def __init__(self):
-        print("Controller init.")
+        print("Controller init.") #Trying to find for controller
         self.screen = pygame.display.set_mode([10, 10])  # Piece of shit nightmare thing
         
         pygame.joystick.init()
@@ -77,7 +77,7 @@ def main():
 if __name__ == '__main__':
     main()
 
-processes = []
+processes = [] #Creates multiple processes so the CPU can use all of the cores
 
 for i in range(os.cpu_count()):
 	print('registering process %d' % i)

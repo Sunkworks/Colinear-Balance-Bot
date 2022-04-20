@@ -2,7 +2,7 @@ import math
 import os
 from multiprocessing import Process
 
-class PID:
+class PID: #PID is a software code calculating angle and stabilizes the robot.
     def __init__(self):
         self.file_name = "PID.txt"
         self.kP = 160

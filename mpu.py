@@ -134,7 +134,7 @@ class Sensors:
 
 
 def main():
-    channel = 1
+    channel = 1 #possibly use i2c-11 instead of 1
     address = 0x68
     sensors = Sensors(channel, address)
     reading = sensors.read_accelerometer()
@@ -143,7 +143,7 @@ def main():
 
 
 def test_filter():
-    channel = 1
+    channel = 1 #possibly use i2c-11 instead of 1
     address = 0x68
     sensors = Sensors(channel, address)
     current_angle, dt = sensors.get_angle()
@@ -156,7 +156,7 @@ def test_filter():
 
 
 def test_gyro():
-    channel = 1
+    channel = 1 #possibly use i2c-11 instead of 1
     address = 0x68
     sensors = Sensors(channel, address)
     print(sensors.read_gyroscope())
@@ -164,7 +164,7 @@ def test_gyro():
 
 
 def test_accel():
-    channel = 1
+    channel = 1 #possibly use i2c-11 instead of 1
     address = 0x68
     sensors = Sensors(channel, address)
     print(sensors.calc_accel_angle())
